@@ -108,3 +108,52 @@
     box-shadow: none !important;
     border: none !important;
 }
+
+.cs-code-editor-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.cs-code-editor-lang {
+    margin-left: 0;
+}
+
+.cs-code-editor-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    color: #abb2bf;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+    line-height: 1.6;
+}
+
+.cs-code-editor-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+.cs-code-editor-btn-copy:hover {
+    border-color: #98c379;
+    color: #98c379;
+}
+
+.cs-code-editor-btn-clear:hover {
+    border-color: #e06c75;
+    color: #e06c75;
+}
+
+.cs-code-editor-btn-paste:hover {
+    border-color: #61aeee;
+    color: #61aeee;
+}

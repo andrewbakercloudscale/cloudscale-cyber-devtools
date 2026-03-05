@@ -147,6 +147,44 @@
                 }
             }
 
+            var copyLabelState = element.useState( 'Copy' );
+            var getCopyLabel = copyLabelState[0];
+            var setCopyLabel = copyLabelState[1];
+
+            function onCopyCode() {
+                var code = attributes.content || '';
+                if ( ! code ) return;
+                if ( navigator.clipboard && navigator.clipboard.writeText ) {
+                    navigator.clipboard.writeText( code ).then( function() {
+                        setCopyLabel( 'Copied!' );
+                        setTimeout( function() { setCopyLabel( 'Copy' ); }, 1500 );
+                    } );
+                } else {
+                    var ta = document.createElement( 'textarea' );
+                    ta.value = code;
+                    ta.style.position = 'fixed';
+                    ta.style.opacity = '0';
+                    document.body.appendChild( ta );
+                    ta.select();
+                    document.execCommand( 'copy' );
+                    document.body.removeChild( ta );
+                    setCopyLabel( 'Copied!' );
+                    setTimeout( function() { setCopyLabel( 'Copy' ); }, 1500 );
+                }
+            }
+
+            function onClearCode() {
+                props.setAttributes( { content: '' } );
+            }
+
+            function onPasteCode() {
+                if ( navigator.clipboard && navigator.clipboard.readText ) {
+                    navigator.clipboard.readText().then( function( text ) {
+                        props.setAttributes( { content: text } );
+                    } ).catch( function() {} );
+                }
+            }
+
             return el( Fragment, {},
                 el( InspectorControls, {},
                     el( PanelBody, { title: __( 'Code Settings', 'cs-code-block' ), initialOpen: true },
@@ -186,7 +224,27 @@
                             : el( 'span', { className: 'cs-code-editor-lang cs-code-editor-lang-auto' }, 'Auto Detect' ),
                         attributes.title
                             ? el( 'span', { className: 'cs-code-editor-title' }, attributes.title )
-                            : null
+                            : null,
+                        el( 'div', { className: 'cs-code-editor-toolbar-actions' },
+                            el( 'button', {
+                                className: 'cs-code-editor-btn cs-code-editor-btn-copy',
+                                type: 'button',
+                                title: __( 'Copy code to clipboard', 'cs-code-block' ),
+                                onClick: onCopyCode
+                            }, getCopyLabel ),
+                            el( 'button', {
+                                className: 'cs-code-editor-btn cs-code-editor-btn-paste',
+                                type: 'button',
+                                title: __( 'Paste clipboard content', 'cs-code-block' ),
+                                onClick: onPasteCode
+                            }, 'Paste' ),
+                            el( 'button', {
+                                className: 'cs-code-editor-btn cs-code-editor-btn-clear',
+                                type: 'button',
+                                title: __( 'Clear all code', 'cs-code-block' ),
+                                onClick: onClearCode
+                            }, 'Clear' )
+                        )
                     ),
                     el( 'textarea', {
                         className: 'cs-code-editor-textarea',

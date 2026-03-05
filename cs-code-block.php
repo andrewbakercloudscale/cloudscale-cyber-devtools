@@ -3,7 +3,7 @@
  * Plugin Name: CloudScale Code Block
  * Plugin URI: https://andrewbaker.ninja
  * Description: Syntax highlighted code block with auto language detection, clipboard copy, dark/light mode toggle, code block migrator, and read only SQL query tool. Works as a Gutenberg block and as a [cs_code] shortcode.
- * Version: 1.7.6
+ * Version: 1.7.8
  * Author: Andrew Baker
  * Author URI: https://andrewbaker.ninja
  * License: GPL v2 or later
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class CloudScale_Code_Block {
 
-    const VERSION      = '1.7.6';
+    const VERSION      = '1.7.8';
     const HLJS_VERSION = '11.11.1';
     const HLJS_CDN     = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/';
     const TOOLS_SLUG   = 'cloudscale-code-sql';

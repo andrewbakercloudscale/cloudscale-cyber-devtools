@@ -4,7 +4,7 @@ Tags: code, syntax highlighting, highlight.js, developer, gutenberg block, sql, 
 Requires at least: 5.8
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.7.18
+Stable tag: 1.7.19
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -79,7 +79,7 @@ Yes. Press Enter to run the query. Use Shift+Enter to insert a newline. Ctrl+Ent
 
 == Changelog ==
 
-= 1.7.18 =
+= 1.7.19 =
 * Security: is_safe_query() now rejects queries containing semicolons, preventing statement stacking
 * Security: Removed $_REQUEST fallback in SQL AJAX handler
 * Fixed: Echoed <style> block removed from admin page; inline <script> blocks extracted to enqueued JS files (PCP compliance)

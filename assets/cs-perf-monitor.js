@@ -10,16 +10,6 @@
 (function () {
     'use strict';
 
-    // ── Debug overlay (remove once iOS click issue is diagnosed) ──────────────
-    var _dbg = [];
-    function dbg(msg) {
-        _dbg.push(msg);
-        var el = document.getElementById('cs-dbg');
-        if (el) el.textContent = _dbg.slice(-6).join(' | ');
-    }
-    // Runs immediately (before DOMContentLoaded) to confirm script loaded
-    dbg('SCRIPT_LOADED');
-
     var LS_OPEN   = 'cs_perf_open';
     var LS_HEIGHT = 'cs_perf_height';
     var LS_TAB    = 'cs_perf_tab';
@@ -96,34 +86,26 @@
         hooksCount   = document.getElementById('cs-ptc-hooks');
         hookSearch   = document.getElementById('cs-hkf-search');
 
-        dbg('DCL');
-        if (!panel) { dbg('NO_PANEL'); return; }
-        dbg('PANEL_OK');
+        if (!panel) return;
 
         // Move the help panel to document.body so it's outside the fixed panel
         // hierarchy — avoids iOS Safari touch-blocking and overflow:hidden clipping.
         var helpPanel = document.getElementById('cs-perf-help');
         if (helpPanel) document.body.appendChild(helpPanel);
 
-        try {
-            dbg('N1'); computeN1Patterns();
-            dbg('PLG'); populatePluginFilter();
-            dbg('ASP'); populateAssetPluginFilter();
-            dbg('BAD'); updateBadges();
-            dbg('TTL'); updateTotalTime();
-            dbg('CTX'); renderPageContext();
-            dbg('FLT'); applyFilters();
-            dbg('LOG'); renderLogs();
-            dbg('AST'); renderAssets();
-            dbg('HKS'); renderHooks();
-            dbg('SUM'); renderSummary();
-            dbg('RST'); restoreState();
-            dbg('BIND_START');
-            bindEvents();
-            dbg('BIND_DONE');
-        } catch (e) {
-            dbg('ERR:' + (e && e.message ? e.message.slice(0, 60) : String(e)));
-        }
+        computeN1Patterns();
+        populatePluginFilter();
+        populateAssetPluginFilter();
+        updateBadges();
+        updateTotalTime();
+        renderPageContext();
+        applyFilters();
+        renderLogs();
+        renderAssets();
+        renderHooks();
+        renderSummary();
+        restoreState();
+        bindEvents();
     });
 
     // ── Page context strip ────────────────────────────────────────────────────
@@ -192,9 +174,8 @@
     }
 
     function togglePanel() {
-        dbg('TOGGLE');
-        if (panel.classList.contains('cs-perf-open')) { dbg('CLOSE'); closePanel(); }
-        else { dbg('OPEN'); openPanel(parseInt(localStorage.getItem(LS_HEIGHT), 10) || DEFAULT_H, true); }
+        if (panel.classList.contains('cs-perf-open')) closePanel();
+        else openPanel(parseInt(localStorage.getItem(LS_HEIGHT), 10) || DEFAULT_H, true);
     }
 
     // ── Tab switching ─────────────────────────────────────────────────────────
@@ -978,11 +959,10 @@
             if (helpBtn && helpBtn.contains(e.target)) return;
             togglePanel();
         });
-        toggleBtn.addEventListener('click', function (e) { dbg('BTN_CLK'); e.stopPropagation(); togglePanel(); });
+        toggleBtn.addEventListener('click', function (e) { e.stopPropagation(); togglePanel(); });
         // iOS Safari fallback: touchend fires reliably even when parent has
         // overflow/fixed positioning quirks that can swallow click events.
         toggleBtn.addEventListener('touchend', function (e) {
-            dbg('BTN_TCH');
             e.preventDefault(); // prevent the follow-up click from double-toggling
             e.stopPropagation();
             togglePanel();

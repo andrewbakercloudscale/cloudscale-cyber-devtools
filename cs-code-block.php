@@ -3,7 +3,7 @@
  * Plugin Name: CloudScale Code Block
  * Plugin URI: https://andrewbaker.ninja
  * Description: Syntax highlighted code block with auto language detection, clipboard copy, dark/light mode toggle, code block migrator, and read only SQL query tool. Works as a Gutenberg block and as a [cs_code] shortcode.
- * Version: 1.7.44
+ * Version: 1.7.45
  * Author: Andrew Baker
  * Author URI: https://andrewbaker.ninja
  * License: GPL-2.0-or-later
@@ -38,7 +38,7 @@ if ( ! defined( 'SAVEQUERIES' ) ) {
  */
 class CloudScale_Code_Block {
 
-    const VERSION      = '1.7.44';
+    const VERSION      = '1.7.45';
     const HLJS_VERSION = '11.11.1';
     const HLJS_CDN     = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/';
     const TOOLS_SLUG   = 'cloudscale-code-sql';
@@ -1633,8 +1633,8 @@ class CloudScale_Code_Block {
         if ( ! current_user_can( 'manage_options' ) ) {
             return;
         }
-        // Temporarily using time() to force cache bust while debugging iOS click issue.
-        $bust = time();
+        $base = plugin_dir_path( __FILE__ ) . 'assets/';
+        $bust = filemtime( $base . 'cs-perf-monitor.css' );
         wp_enqueue_style(
             'cs-perf-monitor',
             plugins_url( 'assets/cs-perf-monitor.css', __FILE__ ),
@@ -1869,8 +1869,8 @@ class CloudScale_Code_Block {
         if ( ! current_user_can( 'manage_options' ) ) {
             return;
         }
-        // Temporarily using time() to force cache bust while debugging iOS click issue.
-        $bust = time();
+        $base = plugin_dir_path( __FILE__ ) . 'assets/';
+        $bust = filemtime( $base . 'cs-perf-monitor.css' );
         wp_enqueue_style(
             'cs-perf-monitor',
             plugins_url( 'assets/cs-perf-monitor.css', __FILE__ ),
@@ -2360,7 +2360,6 @@ class CloudScale_Code_Block {
             . '<div id="cs-perf-resize" title="Drag to resize"></div>'
             . '<div id="cs-perf-header">'
                 . '<div class="cs-perf-hl">'
-                    . '<div id="cs-dbg" style="position:fixed;bottom:52px;left:0;right:0;background:#c00;color:#fff;font-size:11px;padding:2px 8px;z-index:999999;font-family:monospace;pointer-events:none">debug init…</div>'
                 . '<button id="cs-perf-toggle" class="cs-perf-monitor-btn" title="Toggle panel (Ctrl+Shift+M)" aria-expanded="false">'
                         . '<span class="cs-perf-logo">&#9889;</span>'
                         . '<span class="cs-perf-name">CS&nbsp;Monitor</span>'

@@ -1067,42 +1067,44 @@ class CSDT_Thumbnails {
         ] );
     }
 
-    // ─── Crawler UA detection: serve platform-specific og:image ──────────
+    // ─── Always output social og:image early (priority 1) ───────────────
+    // UA-based serving breaks CDN caches — Cloudflare caches the first response
+    // and all subsequent visitors (including bots) get the same cached HTML.
+    // Instead, always output the best available 1200×630 social image for all
+    // visitors so the CDN-cached page has the correct og:image embedded.
 
     public static function output_crawler_og_image(): void {
         if ( ! is_singular( 'post' ) ) return;
-
-        $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
-        if ( ! $ua ) return;
-
-        $platform = null;
-        if ( str_contains( $ua, 'WhatsApp' ) )                                          $platform = 'whatsapp';
-        elseif ( str_contains( $ua, 'facebookexternalhit' ) || str_contains( $ua, 'Facebot' ) ) $platform = 'facebook';
-        elseif ( str_contains( $ua, 'Twitterbot' ) )                                    $platform = 'twitter';
-        elseif ( str_contains( $ua, 'LinkedInBot' ) )                                   $platform = 'linkedin';
-        elseif ( str_contains( $ua, 'Instagram' ) )                                     $platform = 'instagram';
-
-        if ( ! $platform ) return;
 
         $post_id = get_the_ID();
         if ( ! $post_id ) return;
 
         $formats = get_post_meta( $post_id, '_csdt_social_formats', true );
-        // Backward compat: fall back to old meta key from before the cs_ → csdt_ rename.
         if ( empty( $formats ) ) {
             $formats = get_post_meta( $post_id, '_cs_social_formats', true );
         }
-        if ( empty( $formats[ $platform ]['url'] ) ) return;
+        if ( empty( $formats ) ) return;
+
+        // Pick the best available format: prefer whatsapp (1200×630, ≤200 KB),
+        // fall back through other 1200×630 formats.
+        $order = [ 'whatsapp', 'facebook', 'linkedin', 'instagram', 'twitter' ];
+        $platform = null;
+        foreach ( $order as $p ) {
+            if ( ! empty( $formats[ $p ]['url'] ) ) {
+                $platform = $p;
+                break;
+            }
+        }
+        if ( ! $platform ) return;
 
         $img_url = esc_url( $formats[ $platform ]['url'] );
-        $p       = self::SOCIAL_PLATFORMS[ $platform ];
+        $dims    = self::SOCIAL_PLATFORMS[ $platform ];
 
-        // Output early — this fires at priority 1 so it lands before SEO plugin tags.
-        // Duplicate og:image tags are fine; the first one is used by most crawlers.
-        echo "\n<!-- CloudScale: platform-specific og:image for {$platform} -->\n";
+        // Output before SEO plugin tags (priority 1). First og:image wins for most crawlers.
+        echo "\n<!-- CloudScale: social og:image ({$platform}) -->\n";
         echo '<meta property="og:image" content="' . $img_url . '" />' . "\n";
-        echo '<meta property="og:image:width" content="' . (int) $p['w'] . '" />' . "\n";
-        echo '<meta property="og:image:height" content="' . (int) $p['h'] . '" />' . "\n";
+        echo '<meta property="og:image:width" content="' . (int) $dims['w'] . '" />' . "\n";
+        echo '<meta property="og:image:height" content="' . (int) $dims['h'] . '" />' . "\n";
     }
 
     // ─── AJAX: Cloudflare crawler UA test ────────────────────────────────

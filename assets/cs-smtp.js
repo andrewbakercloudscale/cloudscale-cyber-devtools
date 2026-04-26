@@ -232,11 +232,8 @@
 
     // ── Email log: refresh and clear ─────────────────────────────────────
 
-    const logWrap      = document.getElementById( 'cs-email-log-wrap' );
-    const logRefreshBtn = document.getElementById( 'cs-log-refresh' );
-    const logClearBtn  = document.getElementById( 'cs-log-clear' );
-
     function refreshLog() {
+        const logWrap = document.getElementById( 'cs-email-log-wrap' );
         if ( ! logWrap ) return;
         post( 'csdt_devtools_smtp_log_fetch', {} ).then( res => {
             if ( ! res.success ) return;
@@ -289,43 +286,29 @@
         } );
     }
 
-    if ( logRefreshBtn ) {
-        logRefreshBtn.addEventListener( 'click', refreshLog );
-    }
-
-    if ( logClearBtn ) {
-        logClearBtn.addEventListener( 'click', () => {
-            if ( ! confirm( 'Clear all email log entries?' ) ) return;
-            logClearBtn.disabled = true;
-            post( 'csdt_devtools_smtp_log_clear', {} ).then( res => {
-                logClearBtn.disabled = false;
-                if ( res.success ) refreshLog();
-            } ).catch( () => { logClearBtn.disabled = false; } );
-        } );
-    }
-
-    // ── Email view modal ──────────────────────────────────────────────────
-
-    const emailModal      = document.getElementById( 'csdt-email-modal' );
-    const emailModalClose = document.getElementById( 'csdt-email-modal-close' );
-    const emailModalSubj  = document.getElementById( 'csdt-email-modal-subject' );
-    const emailModalMeta  = document.getElementById( 'csdt-email-modal-meta' );
-    const emailModalBody  = document.getElementById( 'csdt-email-modal-body' );
+    // ── Email log + modal binding (re-runs on each tab visit) ────────────
 
     function openEmailModal( idx ) {
+        const emailModal     = document.getElementById( 'csdt-email-modal' );
+        const emailModalSubj = document.getElementById( 'csdt-email-modal-subject' );
+        const emailModalMeta = document.getElementById( 'csdt-email-modal-meta' );
+        const emailModalBody = document.getElementById( 'csdt-email-modal-body' );
         if ( ! emailModal ) return;
         emailModal.style.display = 'flex';
         if ( emailModalSubj ) emailModalSubj.textContent = 'Loading…';
-        if ( emailModalMeta  ) emailModalMeta.innerHTML  = '';
-        if ( emailModalBody  ) emailModalBody.innerHTML  = '<div style="padding:24px;color:#94a3b8;">Loading…</div>';
+        if ( emailModalMeta ) emailModalMeta.innerHTML  = '';
+        if ( emailModalBody ) emailModalBody.innerHTML  = '<div style="padding:24px;color:#94a3b8;">Loading…</div>';
 
         post( 'csdt_devtools_smtp_log_view', { idx } ).then( res => {
+            const mBody = document.getElementById( 'csdt-email-modal-body' );
+            const mSubj = document.getElementById( 'csdt-email-modal-subject' );
+            const mMeta = document.getElementById( 'csdt-email-modal-meta' );
             if ( ! res.success ) {
-                if ( emailModalBody ) emailModalBody.innerHTML = '<div style="padding:24px;color:#c0392b;">Could not load email. It may have been logged before body capture was added — only emails sent after updating to v1.9.228 include the body.</div>';
+                if ( mBody ) mBody.innerHTML = '<div style="padding:24px;color:#c0392b;">Could not load email. It may have been logged before body capture was added — only emails sent after updating to v1.9.228 include the body.</div>';
                 return;
             }
             const e = res.data;
-            if ( emailModalSubj ) emailModalSubj.textContent = e.subject || '(no subject)';
+            if ( mSubj ) mSubj.textContent = e.subject || '(no subject)';
 
             const monthNames = [ 'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec' ];
             function fmtTs( ts ) {
@@ -333,21 +316,21 @@
                 const pad = n => String( n ).padStart( 2, '0' );
                 return monthNames[ d.getMonth() ] + ' ' + d.getDate() + ', ' + pad( d.getHours() ) + ':' + pad( d.getMinutes() ) + ':' + pad( d.getSeconds() );
             }
-            if ( emailModalMeta ) {
-                emailModalMeta.innerHTML =
+            if ( mMeta ) {
+                mMeta.innerHTML =
                     '<span><strong>To:</strong> ' + ( e.to || '—' ) + '</span>' +
                     '<span><strong>Sent:</strong> ' + fmtTs( e.ts ) + '</span>' +
                     '<span><strong>Via:</strong> ' + ( e.via === 'smtp' ? 'SMTP' : 'PHP mail' ) + '</span>' +
                     '<span><strong>Status:</strong> ' + ( e.status === 'sent' ? '✓ Sent' : '✗ ' + ( e.error || 'Failed' ) ) + '</span>';
             }
-            if ( emailModalBody ) {
+            if ( mBody ) {
                 if ( ! e.body ) {
-                    emailModalBody.innerHTML = '<div style="padding:24px;color:#94a3b8;">No body recorded for this email.</div>';
+                    mBody.innerHTML = '<div style="padding:24px;color:#94a3b8;">No body recorded for this email.</div>';
                 } else if ( e.is_html ) {
                     const iframe = document.createElement( 'iframe' );
                     iframe.sandbox = 'allow-same-origin';
                     iframe.style.cssText = 'width:100%;height:100%;min-height:400px;border:none;display:block;';
-                    emailModalBody.appendChild( iframe );
+                    mBody.appendChild( iframe );
                     iframe.contentDocument.open();
                     iframe.contentDocument.write( e.body );
                     iframe.contentDocument.close();
@@ -355,25 +338,60 @@
                     const pre = document.createElement( 'pre' );
                     pre.style.cssText = 'margin:0;padding:20px;font-size:13px;line-height:1.6;white-space:pre-wrap;word-break:break-word;color:#1e293b;';
                     pre.textContent = e.body;
-                    emailModalBody.appendChild( pre );
+                    mBody.appendChild( pre );
                 }
             }
         } );
     }
 
     function closeEmailModal() {
-        if ( emailModal ) emailModal.style.display = 'none';
-        if ( emailModalBody ) emailModalBody.innerHTML = '';
+        const m = document.getElementById( 'csdt-email-modal' );
+        const b = document.getElementById( 'csdt-email-modal-body' );
+        if ( m ) m.style.display = 'none';
+        if ( b ) b.innerHTML = '';
     }
 
-    if ( emailModalClose ) emailModalClose.addEventListener( 'click', closeEmailModal );
-    if ( emailModal ) emailModal.addEventListener( 'click', e => { if ( e.target === emailModal ) closeEmailModal(); } );
+    function csdtSmtpLogInit() {
+        const logRefreshBtn = document.getElementById( 'cs-log-refresh' );
+        const logClearBtn   = document.getElementById( 'cs-log-clear' );
+        const emailModal    = document.getElementById( 'csdt-email-modal' );
+        const emailModalClose = document.getElementById( 'csdt-email-modal-close' );
 
-    // Delegate click on View buttons (works for both PHP-rendered and JS-rendered table)
-    document.addEventListener( 'click', e => {
-        const btn = e.target.closest( '.csdt-email-view-btn' );
-        if ( ! btn ) return;
-        openEmailModal( btn.dataset.idx );
+        if ( logRefreshBtn ) logRefreshBtn.addEventListener( 'click', refreshLog );
+
+        if ( logClearBtn ) {
+            logClearBtn.addEventListener( 'click', () => {
+                if ( ! confirm( 'Clear all email log entries?' ) ) return;
+                logClearBtn.disabled = true;
+                post( 'csdt_devtools_smtp_log_clear', {} ).then( res => {
+                    logClearBtn.disabled = false;
+                    if ( res.success ) refreshLog();
+                } ).catch( () => { logClearBtn.disabled = false; } );
+            } );
+        }
+
+        if ( emailModalClose ) emailModalClose.addEventListener( 'click', closeEmailModal );
+        if ( emailModal ) emailModal.addEventListener( 'click', ev => { if ( ev.target === emailModal ) closeEmailModal(); } );
+    }
+
+    // Delegate View button clicks — document-level so it works after any DOM swap
+    var _smtpViewDelegated = false;
+    if ( ! _smtpViewDelegated ) {
+        _smtpViewDelegated = true;
+        document.addEventListener( 'click', e => {
+            const btn = e.target.closest( '.csdt-email-view-btn' );
+            if ( ! btn ) return;
+            openEmailModal( btn.dataset.idx );
+        } );
+    }
+
+    if ( document.readyState === 'loading' ) {
+        document.addEventListener( 'DOMContentLoaded', csdtSmtpLogInit );
+    } else {
+        csdtSmtpLogInit();
+    }
+    document.addEventListener( 'csdt:tab-shown', function( e ) {
+        if ( e.detail && e.detail.tab === 'mail' ) csdtSmtpLogInit();
     } );
 
 } )();

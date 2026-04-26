@@ -223,7 +223,7 @@ class CSDT_SMTP {
             </div>
             <div class="cs-panel-body">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-                    <button type="button" class="cs-btn-primary" id="cs-log-refresh" style="background:#5b6a7a">🔄 <?php esc_html_e( 'Refresh', 'cloudscale-devtools' ); ?></button>
+                    <button type="button" class="cs-btn-primary" id="cs-log-refresh">🔄 <?php esc_html_e( 'Refresh', 'cloudscale-devtools' ); ?></button>
                     <button type="button" id="cs-log-clear" style="font-size:13px;padding:6px 14px;cursor:pointer;background:#fff0f0;border:1.5px solid #f5c6cb;color:#c0392b;border-radius:6px">🗑 <?php esc_html_e( 'Clear Log', 'cloudscale-devtools' ); ?></button>
                 </div>
                 <div id="cs-email-log-wrap">

@@ -3,7 +3,7 @@
  * Plugin Name: CloudScale Cyber and Devtools
  * Plugin URI: https://your-wordpress-site.example.com
  * Description: Free AI penetration testing, brute-force protection, 2FA, passkeys, AI site audit, AI debugging, performance monitor, SMTP, SQL tool, server logs, vulnerability scanner, and Cloudflare uptime monitor. No subscription, no cloud dependency.
- * Version: 1.9.552
+ * Version: 1.9.553
  * Author: Andrew Baker
  * Author URI: https://your-wordpress-site.example.com
  * License: GPL-2.0-or-later
@@ -54,7 +54,7 @@ if ( ! defined( 'SAVEQUERIES' ) && get_option( 'csdt_devtools_perf_monitor_enabl
  */
 class CloudScale_DevTools {
 
-    const VERSION      = '1.9.552';
+    const VERSION      = '1.9.553';
     const HLJS_VERSION = '11.11.1';
     const HLJS_CDN     = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/';
     const TOOLS_SLUG   = 'cloudscale-devtools';
@@ -2032,29 +2032,26 @@ class CloudScale_DevTools {
                 $ntfy_set      = ! empty( get_option( 'csdt_scan_schedule_ntfy_url', '' ) );
                 $last_pos      = get_option( 'csdt_php_error_last_pos', [] );
                 ?>
-                <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px 24px;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-                        <div>
-                            <strong style="color:#1e293b;">🔔 <?php esc_html_e( 'PHP Error Alerting', 'cloudscale-devtools' ); ?></strong>
-                            <span style="display:block;font-size:.82em;color:#64748b;margin-top:2px;"><?php esc_html_e( 'Polls PHP + WP debug logs every 5 min — alerts via email and ntfy.sh when new fatals appear', 'cloudscale-devtools' ); ?></span>
-                        </div>
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            <?php self::render_explain_btn( 'php-error-alerting', 'PHP Error Alerting', [
-                                [ 'name' => 'How it works',     'rec' => 'Info',        'html' => 'A WP-Cron job runs every 5 minutes. It records the last byte-offset read for each log file and only reads <em>new</em> lines since the previous check — so you only get alerted about errors that just appeared, not the entire log history.' ],
-                                [ 'name' => 'Alert channels',   'rec' => 'Recommended', 'html' => '<strong>Email</strong> — sent to the WordPress admin email address. <strong>ntfy.sh</strong> — instant push notification to any device running the ntfy app. Set your ntfy URL under <strong>Security Scan → Settings → Notification URL</strong>. Both channels fire independently if configured.' ],
-                                [ 'name' => 'Threshold',        'rec' => 'Info',        'html' => 'The <em>threshold</em> is the minimum number of new errors per check before an alert fires. Set it to 1 to be notified about every single error. Fatal errors (PHP Fatal, WordPress die) always trigger an alert regardless of the threshold.' ],
-                                [ 'name' => 'Log paths',        'rec' => 'Recommended', 'html' => 'The monitor watches the same log sources configured in the Server Logs panel. If no PHP error log path is set, enable the mu-plugin under Server Logs → PHP Error Log to redirect errors to <code>wp-content/php-error.log</code>.' ],
-                            ] ); ?>
-
-                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <div class="cs-panel" style="margin:0;">
+                    <div class="cs-section-header" style="background:linear-gradient(90deg,#92400e 0%,#b45309 100%);border-left:3px solid #fcd34d;">
+                        <span>🔔 <?php esc_html_e( 'PHP Error Alerting', 'cloudscale-devtools' ); ?></span>
+                        <span class="cs-header-hint"><?php esc_html_e( 'Polls PHP + WP debug logs every 5 min — alerts via email and ntfy.sh when new fatals appear', 'cloudscale-devtools' ); ?></span>
+                        <?php self::render_explain_btn( 'php-error-alerting', 'PHP Error Alerting', [
+                            [ 'name' => 'How it works',     'rec' => 'Info',        'html' => 'A WP-Cron job runs every 5 minutes. It records the last byte-offset read for each log file and only reads <em>new</em> lines since the previous check — so you only get alerted about errors that just appeared, not the entire log history.' ],
+                            [ 'name' => 'Alert channels',   'rec' => 'Recommended', 'html' => '<strong>Email</strong> — sent to the WordPress admin email address. <strong>ntfy.sh</strong> — instant push notification to any device running the ntfy app. Set your ntfy URL under <strong>Security Scan → Settings → Notification URL</strong>. Both channels fire independently if configured.' ],
+                            [ 'name' => 'Threshold',        'rec' => 'Info',        'html' => 'The <em>threshold</em> is the minimum number of new errors per check before an alert fires. Set it to 1 to be notified about every single error. Fatal errors (PHP Fatal, WordPress die) always trigger an alert regardless of the threshold.' ],
+                            [ 'name' => 'Log paths',        'rec' => 'Recommended', 'html' => 'The monitor watches the same log sources configured in the Server Logs panel. If no PHP error log path is set, enable the mu-plugin under Server Logs → PHP Error Log to redirect errors to <code>wp-content/php-error.log</code>.' ],
+                        ] ); ?>
+                        <div style="display:flex;align-items:center;gap:10px;margin-left:auto;">
+                            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
                                 <input type="checkbox" id="csdt-errmon-enabled" <?php checked( $mon_enabled ); ?>>
-                                <span style="font-size:.85em;color:#94a3b8;"><?php esc_html_e( 'Enabled', 'cloudscale-devtools' ); ?></span>
+                                <span style="font-size:.82em;color:rgba(255,255,255,.8);"><?php esc_html_e( 'Enabled', 'cloudscale-devtools' ); ?></span>
                             </label>
                             <button type="button" id="csdt-errmon-save" class="cs-btn-sm cs-btn-primary"><?php esc_html_e( 'Save', 'cloudscale-devtools' ); ?></button>
-                            <span id="csdt-errmon-status" style="font-size:.82em;color:#94a3b8;"></span>
+                            <span id="csdt-errmon-status" style="font-size:.82em;color:rgba(255,255,255,.8);"></span>
                         </div>
                     </div>
-                    <div style="display:flex;flex-direction:column;gap:8px;font-size:.82em;color:#64748b;">
+                    <div class="cs-panel-body" style="display:flex;flex-direction:column;gap:8px;font-size:.82em;color:#64748b;">
                         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                             <span style="white-space:nowrap;"><?php esc_html_e( 'Alert after', 'cloudscale-devtools' ); ?></span>
                             <input type="number" id="csdt-errmon-threshold" min="1" max="50" value="<?php echo esc_attr( $mon_threshold ); ?>" style="width:52px;background:#fff;color:#1e293b;border:1px solid #d1d5db;border-radius:4px;padding:2px 6px;font-size:1em;text-align:center;">
@@ -2129,32 +2126,29 @@ class CloudScale_DevTools {
                     . "FPM_CALLBACK_URL={$fpm_report_url}\n"
                     . "FPM_CALLBACK_TOKEN={$fpm_token}";
                 ?>
-                <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px 24px;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-                        <div>
-                            <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;">
-                                <strong style="color:#1e293b;">🖥️ <?php esc_html_e( 'PHP-FPM Saturation Monitor', 'cloudscale-devtools' ); ?></strong>
-                                <span style="display:inline-flex;align-items:center;padding:1px 8px;background:#dbeafe;border-radius:10px;font-size:.72em;color:#1d4ed8;">HOST CRON</span>
-                                <?php self::render_explain_btn( 'fpm_monitor', 'PHP-FPM Saturation Monitor', [
-                                    [ 'name' => 'What is PHP-FPM saturation?', 'rec' => 'Info', 'html' => 'PHP-FPM (FastCGI Process Manager) maintains a pool of worker processes that handle requests. When all workers are busy (e.g. a traffic spike, a slow DB query holding workers open, or a runaway loop), new requests queue up and the site appears frozen or times out. This is called saturation.' ],
-                                    [ 'name' => 'Why a host cron, not WP-Cron?', 'rec' => 'Critical', 'html' => 'WP-Cron runs inside PHP-FPM. If PHP-FPM is fully saturated, WP-Cron can\'t execute — so a WordPress-based monitor would be silenced exactly when you need it most. This monitor runs as a shell script on the host OS (outside Docker), so it fires even when every PHP worker is consumed.' ],
-                                    [ 'name' => 'How the detection works', 'rec' => 'Info', 'html' => 'Every minute the script probes the HTTP URL. If the probe times out or fails N consecutive times (the threshold), saturation is declared. It then sends an ntfy.sh push notification and email alert, optionally restarts the WordPress container, and POSTs an event to this panel via the callback URL.' ],
-                                    [ 'name' => 'Current Workers display', 'rec' => 'Info', 'html' => 'Shows live active / idle / total worker counts from the PHP-FPM status page (<code>pm.status_path</code>). Requires <code>pm.status_path = /fpm-status</code> in your <code>www.conf</code> and a matching nginx location block. Click Refresh at any time to re-poll.' ],
-                                    [ 'name' => 'Auto-restart', 'rec' => 'Optional', 'html' => 'When enabled, the script issues a <code>docker restart {container}</code> command after declaring saturation. A restart cooldown prevents thrashing. Use with care on production — a restart drops all in-flight requests.' ],
-                                    [ 'name' => 'Setup', 'rec' => 'Info', 'html' => 'Copy the crontab line and config.env snippet from the Host Cron Setup section below. The callback URL and token wire the script back to this panel so saturation events appear in the audit trail automatically.' ],
-                                ], 'Monitors PHP-FPM worker exhaustion from the host OS. Alerts via ntfy + email, can auto-restart the container, and logs events back to this panel.' ); ?>
-                            </div>
-                            <span style="display:block;font-size:.82em;color:#64748b;margin-top:2px;"><?php esc_html_e( 'Detects when all PHP-FPM workers are exhausted. Runs on the host (not WP-Cron), so it fires even when PHP is fully saturated. Can automatically restart the WordPress container and notify via ntfy.', 'cloudscale-devtools' ); ?></span>
-                        </div>
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <div class="cs-panel" style="margin:0;">
+                    <div class="cs-section-header" style="background:linear-gradient(90deg,#3730a3 0%,#6366f1 100%);border-left:3px solid #a5b4fc;">
+                        <span>🖥️ <?php esc_html_e( 'PHP-FPM Saturation Monitor', 'cloudscale-devtools' ); ?></span>
+                        <span style="display:inline-flex;align-items:center;padding:1px 8px;background:rgba(255,255,255,.15);border-radius:10px;font-size:.72em;color:#e0e7ff;margin-left:4px;">HOST CRON</span>
+                        <span class="cs-header-hint"><?php esc_html_e( 'Detects when all PHP-FPM workers are exhausted. Runs on the host (not WP-Cron), so it fires even when PHP is fully saturated.', 'cloudscale-devtools' ); ?></span>
+                        <?php self::render_explain_btn( 'fpm_monitor', 'PHP-FPM Saturation Monitor', [
+                            [ 'name' => 'What is PHP-FPM saturation?', 'rec' => 'Info', 'html' => 'PHP-FPM (FastCGI Process Manager) maintains a pool of worker processes that handle requests. When all workers are busy (e.g. a traffic spike, a slow DB query holding workers open, or a runaway loop), new requests queue up and the site appears frozen or times out. This is called saturation.' ],
+                            [ 'name' => 'Why a host cron, not WP-Cron?', 'rec' => 'Critical', 'html' => 'WP-Cron runs inside PHP-FPM. If PHP-FPM is fully saturated, WP-Cron can\'t execute — so a WordPress-based monitor would be silenced exactly when you need it most. This monitor runs as a shell script on the host OS (outside Docker), so it fires even when every PHP worker is consumed.' ],
+                            [ 'name' => 'How the detection works', 'rec' => 'Info', 'html' => 'Every minute the script probes the HTTP URL. If the probe times out or fails N consecutive times (the threshold), saturation is declared. It then sends an ntfy.sh push notification and email alert, optionally restarts the WordPress container, and POSTs an event to this panel via the callback URL.' ],
+                            [ 'name' => 'Current Workers display', 'rec' => 'Info', 'html' => 'Shows live active / idle / total worker counts from the PHP-FPM status page (<code>pm.status_path</code>). Requires <code>pm.status_path = /fpm-status</code> in your <code>www.conf</code> and a matching nginx location block. Click Refresh at any time to re-poll.' ],
+                            [ 'name' => 'Auto-restart', 'rec' => 'Optional', 'html' => 'When enabled, the script issues a <code>docker restart {container}</code> command after declaring saturation. A restart cooldown prevents thrashing. Use with care on production — a restart drops all in-flight requests.' ],
+                            [ 'name' => 'Setup', 'rec' => 'Info', 'html' => 'Copy the crontab line and config.env snippet from the Host Cron Setup section below. The callback URL and token wire the script back to this panel so saturation events appear in the audit trail automatically.' ],
+                        ], 'Monitors PHP-FPM worker exhaustion from the host OS. Alerts via ntfy + email, can auto-restart the container, and logs events back to this panel.' ); ?>
+                        <div style="display:flex;align-items:center;gap:10px;margin-left:auto;">
+                            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
                                 <input type="checkbox" id="csdt-fpm-enabled" <?php checked( $fpm_enabled ); ?>>
-                                <span style="font-size:.85em;color:#94a3b8;"><?php esc_html_e( 'Enabled', 'cloudscale-devtools' ); ?></span>
+                                <span style="font-size:.82em;color:rgba(255,255,255,.8);"><?php esc_html_e( 'Enabled', 'cloudscale-devtools' ); ?></span>
                             </label>
                             <button type="button" id="csdt-fpm-save" class="cs-btn-sm cs-btn-primary"><?php esc_html_e( 'Save', 'cloudscale-devtools' ); ?></button>
-                            <span id="csdt-fpm-status" style="font-size:.82em;color:#94a3b8;"></span>
+                            <span id="csdt-fpm-status" style="font-size:.82em;color:rgba(255,255,255,.8);"></span>
                         </div>
                     </div>
+                    <div class="cs-panel-body">
 
                     <!-- Workers live status -->
                     <div style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
@@ -2351,7 +2345,8 @@ class CloudScale_DevTools {
                             </div>
                         </div>
                     </div>
-                </div>
+                    </div><!-- /.cs-panel-body -->
+                </div><!-- /.cs-panel -->
 
             </div>
         </div>
@@ -2381,17 +2376,31 @@ class CloudScale_DevTools {
                             <div style="display:flex;flex-direction:column;gap:10px;max-width:420px;">
                                 <div>
                                     <label for="csdt-cf-zone-id" style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">Zone ID</label>
-                                    <input id="csdt-cf-zone-id" type="text" class="cs-input" style="width:100%;"
-                                           placeholder="<?php esc_attr_e( 'Cloudflare Zone ID', 'cloudscale-devtools' ); ?>"
-                                           value="<?php $z = get_option( 'csdt_devtools_cf_zone_id', '' ); echo esc_attr( $z ? str_repeat( '•', 16 ) . substr( $z, -4 ) : '' ); ?>"
-                                           autocomplete="off">
+                                    <div style="position:relative;display:flex;align-items:center;">
+                                        <?php $z = get_option( 'csdt_devtools_cf_zone_id', '' ); ?>
+                                        <input id="csdt-cf-zone-id" type="text" class="cs-input" style="width:100%;padding-right:36px;"
+                                               placeholder="<?php esc_attr_e( 'Cloudflare Zone ID', 'cloudscale-devtools' ); ?>"
+                                               value="<?php echo esc_attr( $z ? str_repeat( '•', 16 ) . substr( $z, -4 ) : '' ); ?>"
+                                               data-real="<?php echo esc_attr( $z ); ?>"
+                                               data-masked="<?php echo esc_attr( $z ? str_repeat( '•', 16 ) . substr( $z, -4 ) : '' ); ?>"
+                                               autocomplete="off">
+                                        <button type="button" class="csdt-cf-eye-btn" data-target="csdt-cf-zone-id" title="Show / hide"
+                                                style="position:absolute;right:8px;background:none;border:none;cursor:pointer;padding:0;color:#94a3b8;font-size:15px;line-height:1;">👁</button>
+                                    </div>
                                 </div>
                                 <div>
                                     <label for="csdt-cf-api-token" style="display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:4px;">API Token</label>
-                                    <input id="csdt-cf-api-token" type="password" class="cs-input" style="width:100%;"
-                                           placeholder="<?php esc_attr_e( 'Cloudflare API Token', 'cloudscale-devtools' ); ?>"
-                                           value="<?php echo esc_attr( get_option( 'csdt_devtools_cf_api_token', '' ) ? str_repeat( '•', 20 ) : '' ); ?>"
-                                           autocomplete="new-password">
+                                    <div style="position:relative;display:flex;align-items:center;">
+                                        <?php $t = get_option( 'csdt_devtools_cf_api_token', '' ); ?>
+                                        <input id="csdt-cf-api-token" type="text" class="cs-input" style="width:100%;padding-right:36px;"
+                                               placeholder="<?php esc_attr_e( 'Cloudflare API Token', 'cloudscale-devtools' ); ?>"
+                                               value="<?php echo esc_attr( $t ? str_repeat( '•', 16 ) . substr( $t, -4 ) : '' ); ?>"
+                                               data-real="<?php echo esc_attr( $t ); ?>"
+                                               data-masked="<?php echo esc_attr( $t ? str_repeat( '•', 16 ) . substr( $t, -4 ) : '' ); ?>"
+                                               autocomplete="new-password">
+                                        <button type="button" class="csdt-cf-eye-btn" data-target="csdt-cf-api-token" title="Show / hide"
+                                                style="position:absolute;right:8px;background:none;border:none;cursor:pointer;padding:0;color:#94a3b8;font-size:15px;line-height:1;">👁</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2787,8 +2796,8 @@ class CloudScale_DevTools {
         ?>
         <div class="cs-panel" id="cs-panel-sql">
             <div class="cs-section-header cs-section-header-purple">
-                <span>🗄️ SQL Query</span>
-                <span class="cs-header-hint"><?php esc_html_e( 'Table prefix:', 'cloudscale-devtools' ); ?> <code><?php echo esc_html( $prefix ); ?></code> &nbsp;·&nbsp; ⚠ <?php esc_html_e( 'Read only (SELECT, SHOW, DESCRIBE, EXPLAIN)', 'cloudscale-devtools' ); ?></span>
+                <span>🗄️ <?php esc_html_e( 'SQL Query', 'cloudscale-devtools' ); ?></span>
+                <span class="cs-header-hint"><code style="background:rgba(255,255,255,.15);padding:1px 6px;border-radius:3px;"><?php echo esc_html( $prefix ); ?></code> &nbsp;·&nbsp; ⚠ <?php esc_html_e( 'Read only (SELECT, SHOW, DESCRIBE, EXPLAIN)', 'cloudscale-devtools' ); ?></span>
                 <?php self::render_explain_btn( 'sql', 'SQL Query Tool', [
                     [ 'name' => 'Read-only',     'rec' => 'Informational', 'html' => 'Only <code>SELECT</code>, <code>SHOW</code>, <code>DESCRIBE</code>, and <code>EXPLAIN</code> queries are permitted. Write operations (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, <code>DROP</code>, <code>ALTER</code>, <code>TRUNCATE</code>) are blocked to prevent accidental data loss.' ],
                     [ 'name' => 'Table Prefix',  'rec' => 'Informational', 'html' => 'Your WordPress table prefix is shown in the header. Use it in your queries, e.g. <code>SELECT * FROM wp_posts LIMIT 10</code> or <code>SELECT * FROM wp_options WHERE option_name = \'siteurl\'</code>.' ],
@@ -2803,36 +2812,30 @@ class CloudScale_DevTools {
                     <span id="cs-sql-status" style="font-size:12px;color:#888"></span>
                     <span style="margin-left:auto;font-size:11px;color:#999"><?php esc_html_e( 'Enter or Ctrl+Enter to run', 'cloudscale-devtools' ); ?></span>
                 </div>
-            </div>
-        </div>
 
-        <div class="cs-panel">
-            <div class="cs-section-header cs-section-header-green">
-                <span>📊 <?php esc_html_e( 'Results', 'cloudscale-devtools' ); ?></span>
-                <span id="cs-sql-meta" style="font-size:12px;opacity:0.85"></span>
-                <?php self::render_explain_btn( 'sql-results', 'SQL Results', [
-                    [ 'name' => 'Table output',       'rec' => 'Informational', 'desc' => 'Query results are shown in a scrollable table with column headers. HTTP URLs in cells are highlighted for easy identification.' ],
-                    [ 'name' => 'Row count / timing', 'rec' => 'Informational', 'desc' => 'The header shows the number of rows returned and the query execution time in milliseconds.' ],
-                ] ); ?>
-            </div>
-            <div class="cs-panel-body">
+                <!-- Results subsection -->
+                <div style="margin:24px 0 10px;padding-bottom:8px;border-bottom:2px solid #e2e8f0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <span style="font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.06em;">📊 <?php esc_html_e( 'Results', 'cloudscale-devtools' ); ?></span>
+                    <span id="cs-sql-meta" style="font-size:12px;color:#64748b;"></span>
+                    <?php self::render_explain_btn( 'sql-results', 'SQL Results', [
+                        [ 'name' => 'Table output',       'rec' => 'Informational', 'html' => 'Query results are shown in a scrollable table with column headers. HTTP URLs in cells are highlighted for easy identification.' ],
+                        [ 'name' => 'Row count / timing', 'rec' => 'Informational', 'html' => 'The header shows the number of rows returned and the query execution time in milliseconds.' ],
+                    ] ); ?>
+                </div>
                 <div id="cs-sql-results" style="overflow-x:auto;font-size:13px">
                     <div style="text-align:center;color:#999;padding:40px 0"><?php esc_html_e( 'Run a query to see results here', 'cloudscale-devtools' ); ?></div>
                 </div>
-            </div>
-        </div>
 
-        <div class="cs-panel">
-            <div class="cs-section-header cs-section-header-orange">
-                <span>⚡ <?php esc_html_e( 'Quick Queries', 'cloudscale-devtools' ); ?></span>
-                <?php self::render_explain_btn( 'quick-queries', 'Quick Queries', [
-                    [ 'name' => 'Health & Diagnostics', 'rec' => 'Recommended',   'html' => 'MySQL version, table sizes, connection limits, and WordPress table row counts at a glance. Good first check when diagnosing slow sites.' ],
-                    [ 'name' => 'Content Summary',      'rec' => 'Informational', 'html' => 'Counts posts by type and status, revisions, auto-drafts, spam comments, and users for a quick content audit. Useful before a site migration.' ],
-                    [ 'name' => 'Cleanup Candidates',   'rec' => 'Optional',      'html' => 'Identifies orphaned <code>postmeta</code> rows, expired transients, and bloated <code>wp_options</code> autoloaded rows that may be slowing down your database.' ],
-                    [ 'name' => 'Security Checks',      'rec' => 'Optional',      'html' => 'Looks for <code>http://</code> (non-HTTPS) URLs or stale IP addresses in <code>wp_options</code> and post GUIDs — common indicators of old content or unfinished HTTP→HTTPS migrations.' ],
-                ] ); ?>
-            </div>
-            <div class="cs-panel-body">
+                <!-- Quick Queries subsection -->
+                <div style="margin:28px 0 12px;padding-bottom:8px;border-bottom:2px solid #e2e8f0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <span style="font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.06em;">⚡ <?php esc_html_e( 'Quick Queries', 'cloudscale-devtools' ); ?></span>
+                    <?php self::render_explain_btn( 'quick-queries', 'Quick Queries', [
+                        [ 'name' => 'Health & Diagnostics', 'rec' => 'Recommended',   'html' => 'MySQL version, table sizes, connection limits, and WordPress table row counts at a glance. Good first check when diagnosing slow sites.' ],
+                        [ 'name' => 'Content Summary',      'rec' => 'Informational', 'html' => 'Counts posts by type and status, revisions, auto-drafts, spam comments, and users for a quick content audit. Useful before a site migration.' ],
+                        [ 'name' => 'Cleanup Candidates',   'rec' => 'Optional',      'html' => 'Identifies orphaned <code>postmeta</code> rows, expired transients, and bloated <code>wp_options</code> autoloaded rows that may be slowing down your database.' ],
+                        [ 'name' => 'Security Checks',      'rec' => 'Optional',      'html' => 'Looks for <code>http://</code> (non-HTTPS) URLs or stale IP addresses in <code>wp_options</code> and post GUIDs — common indicators of old content or unfinished HTTP→HTTPS migrations.' ],
+                    ] ); ?>
+                </div>
                 <p class="cs-quick-group-label">🏥 <?php esc_html_e( 'Health and Diagnostics', 'cloudscale-devtools' ); ?></p>
                 <div class="cs-quick-grid">
                     <button type="button" class="cs-quick-btn cs-sql-quick" data-sql="SELECT @@version AS mysql_version, @@global.max_connections AS max_connections, @@global.wait_timeout AS wait_timeout_sec, @@global.max_allowed_packet / 1024 / 1024 AS max_packet_mb, DATABASE() AS current_db;">

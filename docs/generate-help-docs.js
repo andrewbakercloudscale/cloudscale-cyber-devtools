@@ -1,5 +1,11 @@
 'use strict';
+const fs      = require('fs');
 const helpLib = require('REPO_BASE/shared-help-docs/help-lib.js');
+
+// Read current version from plugin header so it never goes stale
+const _phpHeader    = fs.readFileSync(`${__dirname}/../cs-code-block.php`, 'utf8');
+const _versionMatch = _phpHeader.match(/^\s*\*\s+Version:\s+(.+)$/m);
+const _pluginVersion = _versionMatch ? _versionMatch[1].trim() : '1.0.0';
 
 helpLib.run({
     baseUrl:    process.env.WP_BASE_URL,
@@ -23,7 +29,7 @@ helpLib.run({
         'description': 'Free WordPress security plugin powered by Anthropic Claude and Google Gemini AI. Features: AI-powered penetration testing, brute-force protection, two-factor authentication, passkeys (WebAuthn), hide login URL, AI site audit, AI debugging assistant, PHP-FPM monitoring, performance panel, SMTP mailer, SQL tool, server logs, plugin vulnerability scanner, Cloudflare uptime monitor with readiness probe, and syntax-highlighted code blocks.',
         'url': 'https://your-wordpress-site.example.com/wordpress-plugin-help/cloudscale-cyber-devtools-help/',
         'downloadUrl': 'https://your-s3-bucket.s3.af-south-1.amazonaws.com/cloudscale-devtools.zip',
-        'softwareVersion': '1.9.121',
+        'softwareVersion': _pluginVersion,
         'author': { '@type': 'Person', 'name': 'Andrew Baker', 'url': 'https://your-wordpress-site.example.com' },
         'isAccessibleForFree': true,
         'license': 'https://www.gnu.org/licenses/gpl-2.0.html',

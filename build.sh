@@ -36,6 +36,9 @@ echo "Version bump: $CURRENT_VER → $NEW_VER"
 while IFS= read -r vfile; do
   sed -i '' "s/$ESC_VER/$NEW_VER/g" "$vfile"
 done < <(grep -rl "$CURRENT_VER" "$REPO_DIR" --include="*.php" --include="*.js" --include="*.txt" 2>/dev/null | grep -v "\.git" | grep -v "/repo/")
+# Force-sync the VERSION class constant — the loop above only replaces the current
+# version string, so a drifted constant (e.g. left at an older patch) is never updated.
+sed -i '' "s/const VERSION\s*=\s*'[^']*'/const VERSION      = '$NEW_VER'/" "$MAIN_PHP"
 # Sync readme.txt and main PHP into repo/ so SVN trunk always has correct version.
 cp "$REPO_DIR/readme.txt" "$REPO_DIR/repo/readme.txt"
 sed -i '' "s/^ \* Version:.*/ * Version:     $NEW_VER/" "$REPO_DIR/repo/cs-code-block.php"
@@ -173,15 +176,25 @@ echo "Contents:"
 unzip -l "$ZIP_FILE" | head -25
 echo ""
 
-# Show version and verify stable tag matches
+# Show version and verify all version references are in sync
 VERSION=$(grep "^ \* Version:" "$REPO_DIR/cs-code-block.php" | head -1 | sed 's/.*Version:[[:space:]]*//' | tr -d '[:space:]')
 STABLE_TAG=$(grep "^Stable tag:" "$REPO_DIR/readme.txt" | head -1 | sed 's/Stable tag:[[:space:]]*//' | tr -d '[:space:]')
+CLASS_VERSION=$(grep -oE "const VERSION\s*=\s*'[^']+'" "$REPO_DIR/cs-code-block.php" | grep -oE "'[^']+'" | tr -d "'" | head -1)
 echo "Plugin version: $VERSION"
 echo "Stable tag:     $STABLE_TAG"
+echo "const VERSION:  $CLASS_VERSION"
+BUILD_ERR=0
 if [ "$VERSION" != "$STABLE_TAG" ]; then
   echo ""
-  echo "ERROR: Version mismatch! Plugin version ($VERSION) != Stable tag ($STABLE_TAG)"
-  echo "Update readme.txt Stable tag before deploying."
+  echo "ERROR: Version mismatch! Plugin header ($VERSION) != Stable tag ($STABLE_TAG)"
+  BUILD_ERR=1
+fi
+if [ "$CLASS_VERSION" != "$VERSION" ]; then
+  echo ""
+  echo "ERROR: const VERSION ('$CLASS_VERSION') does not match plugin header ($VERSION)"
+  BUILD_ERR=1
+fi
+if [ "$BUILD_ERR" != "0" ]; then
   exit 1
 fi
 echo "Version check: OK"

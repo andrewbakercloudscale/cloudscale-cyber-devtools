@@ -194,12 +194,6 @@
         });
     }
 
-    if ( document.readyState === 'loading' ) {
-        document.addEventListener( 'DOMContentLoaded', csdtPerfInit );
-    } else {
-        csdtPerfInit();
-    }
-
     // ── Page context strip ────────────────────────────────────────────────────
     function renderPageContext() {
         if (!ctxStrip) return;
@@ -1784,6 +1778,14 @@
             ]
         }
     };
+
+    // Deferred until ISSUE_FIXES is defined — avoids undefined reference when the
+    // tab router injects this script after DOMContentLoaded has already fired.
+    if ( document.readyState === 'loading' ) {
+        document.addEventListener( 'DOMContentLoaded', csdtPerfInit );
+    } else {
+        csdtPerfInit();
+    }
 
     function getIssueFix(issue) {
         var t = issue.title.toLowerCase();

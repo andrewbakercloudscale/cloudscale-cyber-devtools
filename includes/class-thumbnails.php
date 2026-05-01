@@ -350,6 +350,7 @@ class CSDT_Thumbnails {
                             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
                                 <button type="button" class="cs-btn-secondary" id="cs-ai-img-save-key"><?php esc_html_e( 'Save Key', 'cloudscale-devtools' ); ?></button>
                                 <button type="button" id="cs-ai-img-test-key" style="background:#16a34a;color:#fff;border:1px solid #15803d;border-radius:4px;padding:5px 14px;font-size:13px;font-weight:600;cursor:pointer"><?php esc_html_e( 'Test', 'cloudscale-devtools' ); ?></button>
+                                <button type="button" id="cs-ai-img-copy-key" style="background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;border-radius:4px;padding:5px 14px;font-size:13px;font-weight:600;cursor:pointer" title="Copy key to clipboard">📋 <?php esc_html_e( 'Copy', 'cloudscale-devtools' ); ?></button>
                                 <span id="cs-ai-img-key-status" class="cs-sec-key-status"><?php echo $openai_key ? '<span style="color:#2e7d32">✓ Key saved</span>' : ''; ?></span>
                             </div>
                         </div>
@@ -393,6 +394,7 @@ class CSDT_Thumbnails {
                             <option value="newest"><?php esc_html_e( 'Newest first', 'cloudscale-devtools' ); ?></option>
                             <option value="oldest"><?php esc_html_e( 'Oldest first', 'cloudscale-devtools' ); ?></option>
                             <option value="popular"><?php esc_html_e( 'Most popular (by views)', 'cloudscale-devtools' ); ?></option>
+                            <option value="longest"><?php esc_html_e( 'Longest posts first', 'cloudscale-devtools' ); ?></option>
                         </select>
                         <span class="cs-hint"><?php esc_html_e( 'Choose which posts to tackle first — new content or your most-read pages.', 'cloudscale-devtools' ); ?></span>
                     </div>
@@ -1769,6 +1771,10 @@ class CSDT_Thumbnails {
                 }
             }
 
+            $word_count = $post_obj
+                ? str_word_count( wp_strip_all_tags( $post_obj->post_content ) )
+                : 0;
+
             $results[] = [
                 'post_id'       => $post_id,
                 'title'         => get_the_title( $post_id ),
@@ -1777,16 +1783,21 @@ class CSDT_Thumbnails {
                 'date'          => get_the_date( 'j M Y', $post_id ),
                 'comment_count' => (int) ( $post_obj ? $post_obj->comment_count : 0 ),
                 'view_count'    => $view_count,
+                'word_count'    => $word_count,
             ];
         }
 
-        // For popular sort, re-sort in PHP by view_count desc, then comment_count desc.
+        // PHP re-sort for non-date orderings.
         if ( 'popular' === $sort ) {
             usort( $results, function ( $a, $b ) {
                 $av = $a['view_count'] ?? 0;
                 $bv = $b['view_count'] ?? 0;
                 if ( $bv !== $av ) { return $bv - $av; }
                 return $b['comment_count'] - $a['comment_count'];
+            } );
+        } elseif ( 'longest' === $sort ) {
+            usort( $results, function ( $a, $b ) {
+                return ( $b['word_count'] ?? 0 ) - ( $a['word_count'] ?? 0 );
             } );
         }
 

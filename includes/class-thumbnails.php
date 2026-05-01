@@ -396,7 +396,35 @@ RULES:
                     <span class="cs-sec-label"><?php esc_html_e( 'Model:', 'cloudscale-devtools' ); ?></span>
                     <div class="cs-sec-control">
                         <select id="cs-ai-img-model" class="cs-sec-select">
-                            <!-- populated by JS -->
+                            <?php
+                            $model_options = [
+                                'openai'    => [
+                                    '_auto'                  => 'Automatic (best)',
+                                    'gpt-4o-mini'            => 'GPT-4o mini (fast)',
+                                    'gpt-4o'                 => 'GPT-4o',
+                                ],
+                                'anthropic' => [
+                                    '_auto'                        => 'Automatic (best)',
+                                    'claude-haiku-4-5-20251001'    => 'Claude Haiku 4.5 (fast)',
+                                    'claude-sonnet-4-6'            => 'Claude Sonnet 4.6',
+                                    'claude-opus-4-7'              => 'Claude Opus 4.7 (best)',
+                                ],
+                                'gemini'    => [
+                                    '_auto'              => 'Automatic (best)',
+                                    'gemini-2.0-flash'   => 'Gemini 2.0 Flash (fast)',
+                                    'gemini-1.5-pro'     => 'Gemini 1.5 Pro',
+                                ],
+                            ];
+                            $opts = $model_options[ $saved_vendor ] ?? $model_options['openai'];
+                            foreach ( $opts as $val => $label ) {
+                                printf(
+                                    '<option value="%s"%s>%s</option>',
+                                    esc_attr( $val ),
+                                    selected( $saved_model, $val, false ),
+                                    esc_html( $label )
+                                );
+                            }
+                            ?>
                         </select>
                     </div>
                 </div>
